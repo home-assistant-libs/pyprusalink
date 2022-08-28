@@ -1,6 +1,9 @@
 """Prusalink API."""
+from __future__ import annotations
+
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from typing import TypedDict
 
 from aiohttp import ClientResponse, ClientSession
 
@@ -11,6 +14,45 @@ class PrusaLinkError(Exception):
 
 class InvalidAuth(PrusaLinkError):
     """Error to indicate there is invalid auth."""
+
+
+class VersionInfo(TypedDict):
+    """Version data."""
+
+    api: str
+    server: str
+    text: str
+    hostname: str
+
+
+class PrinterInfo(TypedDict):
+    """Printer data."""
+
+    telemetry: dict
+    temperature: dict
+    state: dict
+
+
+class JobInfo(TypedDict):
+    """Job data."""
+
+    state: str
+    job: dict | None
+
+
+class FileInfo(TypedDict):
+    """File data."""
+
+    name: str
+    origin: str
+    size: int
+    refs: dict
+
+
+class FilesInfo(TypedDict):
+    """Files data."""
+
+    files: list[FileInfo]
 
 
 class PrusaLink:
@@ -26,37 +68,37 @@ class PrusaLink:
         self.host = host
         self._api_key = api_key
 
-    async def get_version(self) -> dict:
+    async def get_version(self) -> VersionInfo:
         """Get the version."""
         async with self.request("GET", "api/version") as response:
             return await response.json()
 
-    async def get_printer(self) -> dict:
+    async def get_printer(self) -> PrinterInfo:
         """Get the printer."""
         async with self.request("GET", "api/printer") as response:
             return await response.json()
 
-    async def get_job(self) -> dict:
+    async def get_job(self) -> JobInfo:
         """Get current job."""
         async with self.request("GET", "api/job") as response:
             return await response.json()
 
-    async def get_file(self, path) -> dict:
+    async def get_file(self, path: str) -> FileInfo:
         """Get specific file info."""
         async with self.request("GET", f"api/files{path}") as response:
             return await response.json()
 
-    async def get_files(self) -> dict:
+    async def get_files(self) -> FilesInfo:
         """Get all files."""
         async with self.request("GET", "api/files?recursive=true") as response:
             return await response.json()
 
-    async def get_small_thumbnail(self, path):
+    async def get_small_thumbnail(self, path: str) -> bytes:
         """Get a small thumbnail."""
         async with self.request("GET", f"thumb/s{path}") as response:
             return await response.read()
 
-    async def get_large_thumbnail(self, path):
+    async def get_large_thumbnail(self, path: str) -> bytes:
         """Get a large thumbnail."""
         async with self.request("GET", f"thumb/l{path}") as response:
             return await response.read()

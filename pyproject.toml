@@ -1,0 +1,69 @@
+[build-system]
+requires = ["setuptools~=62.3", "wheel~=0.37.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyprusalink"
+version = "1.0.0"
+license     = {text = "Apache-2.0"}
+description = "Library to interact with PrusaLink v2"
+readme = "README.md"
+authors = [
+    {name = "The Home Assistant Authors", email = "hello@home-assistant.io"}
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Environment :: Console",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Topic :: Home Automation",
+]
+dependencies = [
+  "aiohttp",
+]
+
+[tool.setuptools]
+platforms = ["any"]
+zip-safe  = true
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["pyprusalink*"]
+
+
+[tool.pylint.BASIC]
+class-const-naming-style = "any"
+good-names = [
+    "_",
+    "ev",
+    "ex",
+    "fp",
+    "i",
+    "id",
+    "j",
+    "k",
+    "Run",
+    "ip",
+]
+
+[tool.isort]
+# https://github.com/PyCQA/isort/wiki/isort-Settings
+profile = "black"
+# will group `import x` and `from x import` of the same module.
+force_sort_within_sections = true
+src_paths = [
+  "custom_components",
+  "matter_server/client",
+  "matter_server/common",
+  "matter_server/server",
+]
+known_first_party = [
+    "custom_components",
+    "matter_server",
+    "tests",
+]
+forced_separate = [
+    "tests",
+]
+combine_as_imports = true

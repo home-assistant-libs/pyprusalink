@@ -16,6 +16,10 @@ class InvalidAuth(PrusaLinkError):
     """Error to indicate there is invalid auth."""
 
 
+class Conflict(PrusaLinkError):
+    """Error to indicate the command hit a conflict."""
+
+
 class VersionInfo(TypedDict):
     """Version data."""
 
@@ -68,6 +72,25 @@ class PrusaLink:
         self.host = host
         self._api_key = api_key
 
+    async def cancel_job(self) -> None:
+        """Cancel the current job."""
+        async with self.request("POST", "api/job", {"command": "cancel"}):
+            pass
+
+    async def resume_job(self) -> None:
+        """Resume a paused job."""
+        async with self.request(
+            "POST", "api/job", {"command": "pause", "action": "resume"}
+        ):
+            pass
+
+    async def pause_job(self) -> None:
+        """Pause the current job."""
+        async with self.request(
+            "POST", "api/job", {"command": "pause", "action": "pause"}
+        ):
+            pass
+
     async def get_version(self) -> VersionInfo:
         """Get the version."""
         async with self.request("GET", "api/version") as response:
@@ -105,15 +128,19 @@ class PrusaLink:
 
     @asynccontextmanager
     async def request(
-        self, method: str, path: str
+        self, method: str, path: str, json: dict | None = None
     ) -> AsyncGenerator[ClientResponse, None]:
         """Make a request to the PrusaLink API."""
         url = f"{self.host}/{path}"
         headers = {"X-Api-Key": self._api_key}
 
-        async with self._session.request(method, url, headers=headers) as response:
+        async with self._session.request(
+            method, url, headers=headers, json=json
+        ) as response:
             if response.status == 401:
                 raise InvalidAuth()
+            if response.status == 409:
+                raise Conflict()
 
             response.raise_for_status()
             yield response

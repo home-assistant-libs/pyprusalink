@@ -5,8 +5,8 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import TypedDict
 
-from aiohttp import ClientResponse, ClientSession
-
+import httpx
+import asyncio
 
 class PrusaLinkError(Exception):
     """Base class for PrusaLink errors."""
@@ -66,11 +66,11 @@ class PrusaLink:
     https://github.com/prusa3d/Prusa-Firmware-Buddy/blob/master/lib/WUI/link_content/basic_gets.cpp
     """
 
-    def __init__(self, session: ClientSession, host: str, api_key: str) -> None:
+    def __init__(self, host: str, user: str, password: str) -> None:
         """Initialize the PrusaLink class."""
-        self._session = session
         self.host = host
-        self._api_key = api_key
+        self.user = user
+        self.password = password
 
     async def cancel_job(self) -> None:
         """Cancel the current job."""
@@ -94,53 +94,63 @@ class PrusaLink:
     async def get_version(self) -> VersionInfo:
         """Get the version."""
         async with self.request("GET", "api/version") as response:
-            return await response.json()
+            return response.json()
 
     async def get_printer(self) -> PrinterInfo:
         """Get the printer."""
         async with self.request("GET", "api/printer") as response:
-            return await response.json()
+            return response.json()
 
     async def get_job(self) -> JobInfo:
         """Get current job."""
         async with self.request("GET", "api/job") as response:
-            return await response.json()
+            return response.json()
 
     async def get_file(self, path: str) -> FileInfo:
         """Get specific file info."""
         async with self.request("GET", f"api/files{path}") as response:
-            return await response.json()
+            return response.json()
 
     async def get_files(self) -> FilesInfo:
         """Get all files."""
         async with self.request("GET", "api/files?recursive=true") as response:
-            return await response.json()
+            return response.json()
 
     async def get_small_thumbnail(self, path: str) -> bytes:
         """Get a small thumbnail."""
         async with self.request("GET", f"thumb/s{path}") as response:
-            return await response.read()
+            return response.read()
 
     async def get_large_thumbnail(self, path: str) -> bytes:
         """Get a large thumbnail."""
         async with self.request("GET", f"thumb/l{path}") as response:
-            return await response.read()
+            return response.read()
 
     @asynccontextmanager
     async def request(
-        self, method: str, path: str, json: dict | None = None
-    ) -> AsyncGenerator[ClientResponse, None]:
+        self, method: str, path: str, headers: str | None = None, json: dict | None = None
+    ):
         """Make a request to the PrusaLink API."""
         url = f"{self.host}/{path}"
-        headers = {"X-Api-Key": self._api_key}
+        client = httpx.AsyncClient() 
 
-        async with self._session.request(
-            method, url, headers=headers, json=json
-        ) as response:
-            if response.status == 401:
+        async with client:
+            response = await client.request(
+                method, url, headers=headers, json=json, auth=httpx.DigestAuth(self.user, self.password)
+            )
+            if response.status_code == 401:
                 raise InvalidAuth()
-            if response.status == 409:
+            if response.status_code == 409:
                 raise Conflict()
-
             response.raise_for_status()
+
             yield response
+
+async def main():
+    link = PrusaLink('http://prusa-sl1s.nest', 'maker', 'kkQM-6jW9-rsPU-DoBJ')
+    printer = await link.get_printer()
+    print(printer)
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(main())
+loop.close()

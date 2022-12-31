@@ -4,6 +4,7 @@ from __future__ import annotations
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import TypedDict
+from httpx import Response
 
 import httpx
 import asyncio
@@ -58,6 +59,25 @@ class FilesInfo(TypedDict):
 
     files: list[FileInfo]
 
+class UserAuth(TypedDict):
+    """Authentication via `user` + `password` digest"""
+
+    type: "UserAuth"
+    user: str
+    password: str
+
+class ApiKeyAuth(TypedDict):
+    """Authentication via api key"""
+
+    type: "ApiKeyAuth"
+    apiKey: str
+
+class LinkConfiguration(TypedDict):
+    """Configuration shape for PrusaLink"""
+
+    host: str
+    auth: UserAuth | ApiKeyAuth
+
 
 class PrusaLink:
     """Wrapper for the Prusalink API.
@@ -66,11 +86,18 @@ class PrusaLink:
     https://github.com/prusa3d/Prusa-Firmware-Buddy/blob/master/lib/WUI/link_content/basic_gets.cpp
     """
 
-    def __init__(self, host: str, user: str, password: str) -> None:
+    def __init__(self, config: LinkConfiguration) -> None:
         """Initialize the PrusaLink class."""
-        self.host = host
-        self.user = user
-        self.password = password
+
+        auth = config["auth"]
+
+        if auth["type"] == "UserAuth":
+            self.password = auth["password"]
+            self.user = auth["user"]
+        if auth["type"] == "ApiKeyAuth":
+            self.apiKey = auth["apiKey"]
+        self.host = config["host"]
+        self.authType = auth["type"]
 
     async def cancel_job(self) -> None:
         """Cancel the current job."""
@@ -128,16 +155,25 @@ class PrusaLink:
 
     @asynccontextmanager
     async def request(
-        self, method: str, path: str, headers: str | None = None, json: dict | None = None
-    ):
+        self, method: str, path: str, json: dict | None = None
+    ) -> AsyncGenerator[Response, None]:
         """Make a request to the PrusaLink API."""
         url = f"{self.host}/{path}"
-        client = httpx.AsyncClient() 
 
+        auth = None
+        if self.authType == "UserAuth":
+            auth = httpx.BasicAuth(self.user, self.password)
+
+        headers = {}
+        if self.authType == "ApiKeyAuth":
+            headers = {"X-Api-Key": self.apiKey}
+
+        client = httpx.AsyncClient() 
         async with client:
             response = await client.request(
-                method, url, headers=headers, json=json, auth=httpx.DigestAuth(self.user, self.password)
+                method, url, json=json, auth=auth, headers=headers, 
             )
+
             if response.status_code == 401:
                 raise InvalidAuth()
             if response.status_code == 409:
@@ -145,12 +181,3 @@ class PrusaLink:
             response.raise_for_status()
 
             yield response
-
-async def main():
-    link = PrusaLink('http://prusa-sl1s.nest', 'maker', 'kkQM-6jW9-rsPU-DoBJ')
-    printer = await link.get_printer()
-    print(printer)
-
-loop = asyncio.get_event_loop()
-loop.run_until_complete(main())
-loop.close()

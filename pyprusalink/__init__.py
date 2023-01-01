@@ -4,10 +4,9 @@ from __future__ import annotations
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import TypedDict
-from httpx import Response
+from httpx import Response, AsyncClient
 
 import httpx
-import asyncio
 
 class PrusaLinkError(Exception):
     """Base class for PrusaLink errors."""
@@ -86,7 +85,7 @@ class PrusaLink:
     https://github.com/prusa3d/Prusa-Firmware-Buddy/blob/master/lib/WUI/link_content/basic_gets.cpp
     """
 
-    def __init__(self, config: LinkConfiguration) -> None:
+    def __init__(self, client: AsyncClient, config: LinkConfiguration) -> None:
         """Initialize the PrusaLink class."""
 
         auth = config["auth"]
@@ -98,6 +97,7 @@ class PrusaLink:
             self.apiKey = auth["apiKey"]
         self.host = config["host"]
         self.authType = auth["type"]
+        self.client = client
 
     async def cancel_job(self) -> None:
         """Cancel the current job."""
@@ -168,7 +168,7 @@ class PrusaLink:
         if self.authType == "ApiKeyAuth":
             headers = {"X-Api-Key": self.apiKey}
 
-        client = httpx.AsyncClient() 
+        client = self.client
         async with client:
             response = await client.request(
                 method, url, json=json, auth=auth, headers=headers, 

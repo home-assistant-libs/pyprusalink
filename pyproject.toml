@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyprusalink"
-version = "1.1.0"
+version = "1.2.0"
 license     = {text = "Apache-2.0"}
 description = "Library to interact with PrusaLink v2"
 readme = "README.md"

@@ -4,7 +4,7 @@ from __future__ import annotations
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import TypedDict
-from httpx import Response, AsyncClient, BasicAuth
+from httpx import Response, AsyncClient, DigestAuth
 
 API_KEY = "apiKey"
 API_KEY_AUTH = "ApiKeyAuth"
@@ -122,37 +122,37 @@ class PrusaLink:
     async def get_version(self) -> VersionInfo:
         """Get the version."""
         async with self.request("GET", "api/version") as response:
-            return await response.json()
+            return response.json()
 
     async def get_printer(self) -> PrinterInfo:
         """Get the printer."""
         async with self.request("GET", "api/printer") as response:
-            return await response.json()
+            return response.json()
 
     async def get_job(self) -> JobInfo:
         """Get current job."""
         async with self.request("GET", "api/job") as response:
-            return await response.json()
+            return response.json()
 
     async def get_file(self, path: str) -> FileInfo:
         """Get specific file info."""
         async with self.request("GET", f"api/files{path}") as response:
-            return await response.json()
+            return response.json()
 
     async def get_files(self) -> FilesInfo:
         """Get all files."""
         async with self.request("GET", "api/files?recursive=true") as response:
-            return await response.json()
+            return response.json()
 
     async def get_small_thumbnail(self, path: str) -> bytes:
         """Get a small thumbnail."""
         async with self.request("GET", f"thumb/s{path}") as response:
-            return await response.read()
+            return response.read()
 
     async def get_large_thumbnail(self, path: str) -> bytes:
         """Get a large thumbnail."""
         async with self.request("GET", f"thumb/l{path}") as response:
-            return await response.read()
+            return response.read()
 
     @asynccontextmanager
     async def request(
@@ -163,7 +163,7 @@ class PrusaLink:
 
         auth = None
         if self.auth[AUTH_TYPE] == DIGEST_AUTH:
-            auth = BasicAuth(self.auth[USER], self.auth[PASSWORD])
+            auth = DigestAuth(self.auth[USER], self.auth[PASSWORD])
 
         headers = {}
         if self.auth[AUTH_TYPE] == API_KEY_AUTH:
@@ -175,11 +175,10 @@ class PrusaLink:
                 method, url, json=json, auth=auth, headers=headers, 
             )
 
-            print('pyprusalink response:')
-            print(response)
-            if response.status == 401:
+            print("pyprusalink response:", response.text)
+            if response.status_code == 401:
                 raise InvalidAuth()
-            if response.status == 409:
+            if response.status_code == 409:
                 raise Conflict()
             response.raise_for_status()
 

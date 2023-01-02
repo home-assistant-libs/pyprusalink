@@ -20,7 +20,7 @@ classifiers = [
   "Topic :: Home Automation",
 ]
 dependencies = [
-  "aiohttp",
+  "httpx",
 ]
 
 [tool.setuptools]

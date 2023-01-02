@@ -1,0 +1,8 @@
+API_KEY = "apiKey"
+API_KEY_AUTH = "ApiKeyAuth"
+AUTH = "auth"
+AUTH_TYPE = "authType"
+DIGEST_AUTH = "DigestAuth"
+HOST = "host"
+PASSWORD = "password"
+USER = "user"

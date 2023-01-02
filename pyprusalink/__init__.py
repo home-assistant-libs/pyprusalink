@@ -3,17 +3,29 @@ from __future__ import annotations
 
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import TypedDict
 from httpx import Response, AsyncClient, DigestAuth
 
-API_KEY = "apiKey"
-API_KEY_AUTH = "ApiKeyAuth"
-AUTH = "auth"
-AUTH_TYPE = "authType"
-DIGEST_AUTH = "DigestAuth"
-HOST = "host"
-PASSWORD = "password"
-USER = "user"
+from .const import (
+    API_KEY,
+    API_KEY_AUTH,
+    AUTH,
+    AUTH_TYPE,
+    DIGEST_AUTH,
+    HOST,
+    PASSWORD,
+    USER,
+)
+
+from .types import (
+    VersionInfo,
+    PrinterInfo,
+    JobInfo,
+    FileInfo,
+    FilesInfo,
+    UserAuth,
+    ApiKeyAuth,
+    LinkConfiguration,
+)
 
 class PrusaLinkError(Exception):
     """Base class for PrusaLink errors."""
@@ -27,63 +39,6 @@ class Conflict(PrusaLinkError):
     """Error to indicate the command hit a conflict."""
 
 
-class VersionInfo(TypedDict):
-    """Version data."""
-
-    api: str
-    server: str
-    text: str
-    hostname: str
-
-
-class PrinterInfo(TypedDict):
-    """Printer data."""
-
-    telemetry: dict
-    temperature: dict
-    state: dict
-
-
-class JobInfo(TypedDict):
-    """Job data."""
-
-    state: str
-    job: dict | None
-
-
-class FileInfo(TypedDict):
-    """File data."""
-
-    name: str
-    origin: str
-    size: int
-    refs: dict
-
-
-class FilesInfo(TypedDict):
-    """Files data."""
-
-    files: list[FileInfo]
-
-class UserAuth(TypedDict):
-    """Authentication via `user` + `password` digest"""
-
-    type: DIGEST_AUTH
-    user: str
-    password: str
-
-class ApiKeyAuth(TypedDict):
-    """Authentication via api key"""
-
-    type: API_KEY_AUTH
-    apiKey: str
-
-class LinkConfiguration(TypedDict):
-    """Configuration shape for PrusaLink"""
-
-    host: str
-    auth: UserAuth | ApiKeyAuth
-
 class PrusaLink:
     """Wrapper for the Prusalink API.
 
@@ -94,11 +49,9 @@ class PrusaLink:
     def __init__(self, client: AsyncClient, config: LinkConfiguration) -> None:
         """Initialize the PrusaLink class."""
 
-        print("pyprusalink config:", config)
-
         self.host = config[HOST]
-        self.client = client
         self.auth = config[AUTH]
+        self.client = client
 
     async def cancel_job(self) -> None:
         """Cancel the current job."""
@@ -160,26 +113,26 @@ class PrusaLink:
     ) -> AsyncGenerator[Response, None]:
         """Make a request to the PrusaLink API."""
         url = f"{self.host}/{path}"
-
-        auth = None
-        if self.auth[AUTH_TYPE] == DIGEST_AUTH:
-            auth = DigestAuth(self.auth[USER], self.auth[PASSWORD])
-
-        headers = {}
-        if self.auth[AUTH_TYPE] == API_KEY_AUTH:
-            headers = {"X-Api-Key": self.auth[API_KEY]}
-
         client = self.client
-        async with client:
-            response = await client.request(
-                method, url, json=json, auth=auth, headers=headers, 
-            )
 
-            print("pyprusalink response:", response.text)
+        async with client:
+            if self.auth[AUTH_TYPE] == DIGEST_AUTH:
+                auth = DigestAuth(self.auth[USER], self.auth[PASSWORD])
+                response = await client.request(
+                    method, url, json=json, auth=auth
+                )
+
+            elif self.auth[AUTH_TYPE] == API_KEY_AUTH:
+                headers = {"X-Api-Key": self.auth[API_KEY]}
+                response = await client.request(
+                    method, url, json=json, headers=headers, 
+                )
+
             if response.status_code == 401:
                 raise InvalidAuth()
-            if response.status_code == 409:
+            elif response.status_code == 409:
                 raise Conflict()
+
             response.raise_for_status()
 
             yield response

@@ -1,6 +1,7 @@
 from typing import TypedDict
 
-from .const import DIGEST_AUTH, API_KEY_AUTH
+from .const import API_KEY_AUTH, DIGEST_AUTH
+
 
 class VersionInfo(TypedDict):
     """Version data."""
@@ -40,6 +41,7 @@ class FilesInfo(TypedDict):
 
     files: list[FileInfo]
 
+
 class UserAuth(TypedDict):
     """Authentication via `user` + `password` digest"""
 
@@ -47,11 +49,13 @@ class UserAuth(TypedDict):
     user: str
     password: str
 
+
 class ApiKeyAuth(TypedDict):
     """Authentication via api key"""
 
     type: API_KEY_AUTH
     apiKey: str
+
 
 class LinkConfiguration(TypedDict):
     """Configuration shape for PrusaLink"""

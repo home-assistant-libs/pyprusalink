@@ -3,7 +3,8 @@ from __future__ import annotations
 
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from httpx import Response, AsyncClient, DigestAuth
+
+from httpx import AsyncClient, DigestAuth, Response
 
 from .const import (
     API_KEY,
@@ -15,17 +16,15 @@ from .const import (
     PASSWORD,
     USER,
 )
-
 from .types import (
-    VersionInfo,
-    PrinterInfo,
-    JobInfo,
     FileInfo,
     FilesInfo,
-    UserAuth,
-    ApiKeyAuth,
+    JobInfo,
     LinkConfiguration,
+    PrinterInfo,
+    VersionInfo,
 )
+
 
 class PrusaLinkError(Exception):
     """Base class for PrusaLink errors."""
@@ -118,14 +117,15 @@ class PrusaLink:
         async with client:
             if self.auth[AUTH_TYPE] == DIGEST_AUTH:
                 auth = DigestAuth(self.auth[USER], self.auth[PASSWORD])
-                response = await client.request(
-                    method, url, json=json, auth=auth
-                )
+                response = await client.request(method, url, json=json, auth=auth)
 
             elif self.auth[AUTH_TYPE] == API_KEY_AUTH:
                 headers = {"X-Api-Key": self.auth[API_KEY]}
                 response = await client.request(
-                    method, url, json=json, headers=headers, 
+                    method,
+                    url,
+                    json=json,
+                    headers=headers,
                 )
 
             if response.status_code == 401:

@@ -16,11 +16,13 @@ class Conflict(PrusaLinkError):
 
 class Capabilities(TypedDict):
     """API Capabilities"""
+
     upload_by_put: Optional[bool]
 
 
 class VersionInfo(TypedDict):
     """Version data."""
+
     api: str
     version: str
     printer: str
@@ -32,6 +34,7 @@ class VersionInfo(TypedDict):
 
 class PrinterInfo(TypedDict):
     """Printer informations."""
+
     mmu: Optional[bool]
     name: Optional[str]
     location: Optional[str]
@@ -48,8 +51,10 @@ class PrinterInfo(TypedDict):
 
 class StatusInfo(TypedDict):
     """Status of the printer."""
+
     ok: Optional[bool]
     message: Optional[str]
+
 
 class PrinterState(Enum):
     IDLE = "IDLE"
@@ -62,8 +67,10 @@ class PrinterState(Enum):
     ATTENTION = "ATTENTION"
     READY = "READY"
 
+
 class PrinterStatusInfo(TypedDict):
     """Printer information."""
+
     state: PrinterState
     temp_nozzle: Optional[float]
     target_nozzle: Optional[float]
@@ -79,13 +86,16 @@ class PrinterStatusInfo(TypedDict):
     status_printer: Optional[StatusInfo]
     status_connect: Optional[StatusInfo]
 
+
 class PrinterStatus(TypedDict):
     """Printer status."""
+
     printer: PrinterStatusInfo
 
 
 class PrintFileRefs(TypedDict):
     """Additional Files for the current Job"""
+
     download: Optional[str]
     icon: Optional[str]
     thumbnail: Optional[str]
@@ -93,6 +103,7 @@ class PrintFileRefs(TypedDict):
 
 class JobFilePrint(TypedDict):
     """Currently printed file informations."""
+
     name: str
     display_name: Optional[str]
     path: str
@@ -105,6 +116,7 @@ class JobFilePrint(TypedDict):
 
 class JobInfo(TypedDict):
     """Job information."""
+
     id: int
     state: str
     progress: int

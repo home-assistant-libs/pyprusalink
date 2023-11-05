@@ -13,9 +13,13 @@ class PrusaLink:
     https://github.com/prusa3d/Prusa-Link-Web/blob/master/spec/openapi.yaml
     """
 
-    def __init__(self, session: ClientSession, host: str, username: str, password: str) -> None:
+    def __init__(
+        self, session: ClientSession, host: str, username: str, password: str
+    ) -> None:
         """Initialize the PrusaLink class."""
-        self.client = ApiClient(session=session, host=host, username=username, password=password)
+        self.client = ApiClient(
+            session=session, host=host, username=username, password=password
+        )
 
     async def cancel_job(self, jobId: int) -> None:
         """Cancel the current job."""

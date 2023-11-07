@@ -1,6 +1,8 @@
 from typing import TypedDict, Optional
 from enum import Enum
 
+"""Types of the v1 API. Source: https://github.com/prusa3d/Prusa-Link-Web/blob/master/spec/openapi.yaml"""
+
 
 class PrusaLinkError(Exception):
     """Base class for PrusaLink errors."""
@@ -57,6 +59,8 @@ class StatusInfo(TypedDict):
 
 
 class PrinterState(Enum):
+    """Printer state as Enum."""
+
     IDLE = "IDLE"
     BUSY = "BUSY"
     PRINTING = "PRINTING"

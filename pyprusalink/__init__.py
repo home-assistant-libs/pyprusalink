@@ -3,6 +3,7 @@ from __future__ import annotations
 from aiohttp import ClientSession
 
 from pyprusalink.types import VersionInfo, PrinterInfo, PrinterStatus, JobInfo
+from pyprusalink.types_legacy import LegacyPrinterStatus
 from pyprusalink.client import ApiClient
 
 
@@ -39,6 +40,11 @@ class PrusaLink:
     async def get_version(self) -> VersionInfo:
         """Get the version."""
         async with self.client.request("GET", "/api/version") as response:
+            return await response.json()
+
+    async def get_legacy_printer(self) -> LegacyPrinterStatus:
+        """Get the legacy printer endpoint."""
+        async with self.client.request("GET", "/api/printer") as response:
             return await response.json()
 
     async def get_info(self) -> PrinterInfo:

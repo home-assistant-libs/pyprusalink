@@ -1,4 +1,4 @@
-from typing import TypedDict, Optional
+from typing import TypedDict
 from enum import Enum
 
 """Types of the v1 API. Source: https://github.com/prusa3d/Prusa-Link-Web/blob/master/spec/openapi.yaml"""
@@ -19,7 +19,7 @@ class Conflict(PrusaLinkError):
 class Capabilities(TypedDict):
     """API Capabilities"""
 
-    upload_by_put: Optional[bool]
+    upload_by_put: bool | None
 
 
 class VersionInfo(TypedDict):
@@ -30,32 +30,32 @@ class VersionInfo(TypedDict):
     printer: str
     text: str
     firmware: str
-    sdk: Optional[str]
-    capabilities: Optional[Capabilities]
+    sdk: str | None
+    capabilities: Capabilities | None
 
 
 class PrinterInfo(TypedDict):
     """Printer informations."""
 
-    mmu: Optional[bool]
-    name: Optional[str]
-    location: Optional[str]
-    farm_mode: Optional[bool]
-    nozzle_diameter: Optional[float]
-    min_extrusion_temp: Optional[int]
-    serial: Optional[str]
-    sd_ready: Optional[bool]
-    active_camera: Optional[bool]
-    hostname: Optional[str]
-    port: Optional[str]
-    network_error_chime: Optional[bool]
+    mmu: bool | None
+    name: str | None
+    location: str | None
+    farm_mode: bool | None
+    nozzle_diameter: float | None
+    min_extrusion_temp: int | None
+    serial: str | None
+    sd_ready: bool | None
+    active_camera: bool | None
+    hostname: str | None
+    port: str | None
+    network_error_chime: bool | None
 
 
 class StatusInfo(TypedDict):
     """Status of the printer."""
 
-    ok: Optional[bool]
-    message: Optional[str]
+    ok: bool | None
+    message: str | None
 
 
 class PrinterState(Enum):
@@ -76,19 +76,19 @@ class PrinterStatusInfo(TypedDict):
     """Printer information."""
 
     state: PrinterState
-    temp_nozzle: Optional[float]
-    target_nozzle: Optional[float]
-    temp_bed: Optional[float]
-    target_bed: Optional[float]
-    axis_x: Optional[float]
-    axis_y: Optional[float]
-    axis_z: Optional[float]
-    flow: Optional[int]
-    speed: Optional[int]
-    fan_hotend: Optional[int]
-    fan_print: Optional[int]
-    status_printer: Optional[StatusInfo]
-    status_connect: Optional[StatusInfo]
+    temp_nozzle: float | None
+    target_nozzle: float | None
+    temp_bed: float | None
+    target_bed: float | None
+    axis_x: float | None
+    axis_y: float | None
+    axis_z: float | None
+    flow: int | None
+    speed: int | None
+    fan_hotend: int | None
+    fan_print: int | None
+    status_printer: StatusInfo | None
+    status_connect: StatusInfo | None
 
 
 class PrinterStatus(TypedDict):
@@ -100,22 +100,22 @@ class PrinterStatus(TypedDict):
 class PrintFileRefs(TypedDict):
     """Additional Files for the current Job"""
 
-    download: Optional[str]
-    icon: Optional[str]
-    thumbnail: Optional[str]
+    download: str | None
+    icon: str | None
+    thumbnail: str | None
 
 
 class JobFilePrint(TypedDict):
     """Currently printed file informations."""
 
     name: str
-    display_name: Optional[str]
+    display_name: str | None
     path: str
-    display_path: Optional[str]
-    size: Optional[int]
+    display_path: str | None
+    size: int | None
     m_timestamp: int
-    meta: Optional[dict]
-    refs: Optional[PrintFileRefs]
+    meta: dict | None
+    refs: PrintFileRefs | None
 
 
 class JobInfo(TypedDict):
@@ -124,8 +124,8 @@ class JobInfo(TypedDict):
     id: int
     state: str
     progress: int
-    time_remaining: Optional[int]
+    time_remaining: int | None
     time_printing: int
-    inaccurate_estimates: Optional[bool]
-    serial_print: Optional[bool]
-    file: Optional[JobFilePrint]
+    inaccurate_estimates: bool | None
+    serial_print: bool | None
+    file: JobFilePrint | None

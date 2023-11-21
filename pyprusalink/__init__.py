@@ -1,10 +1,10 @@
 """Prusalink API."""
 from __future__ import annotations
-from aiohttp import ClientSession
 
-from pyprusalink.types import VersionInfo, PrinterInfo, PrinterStatus, JobInfo
-from pyprusalink.types_legacy import LegacyPrinterStatus
+from aiohttp import ClientSession
 from pyprusalink.client import ApiClient
+from pyprusalink.types import JobInfo, PrinterInfo, PrinterStatus, VersionInfo
+from pyprusalink.types_legacy import LegacyPrinterStatus
 
 
 class PrusaLink:

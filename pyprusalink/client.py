@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-import hashlib
 import asyncio
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from aiohttp import ClientResponse, ClientSession
+import hashlib
 
-from pyprusalink.types import InvalidAuth, Conflict
+from aiohttp import ClientResponse, ClientSession
+from pyprusalink.types import Conflict, InvalidAuth
 
 
 class ApiClient:

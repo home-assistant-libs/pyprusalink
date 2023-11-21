@@ -1,5 +1,5 @@
-from typing import TypedDict
 from enum import Enum
+from typing import TypedDict
 
 """Types of the v1 API. Source: https://github.com/prusa3d/Prusa-Link-Web/blob/master/spec/openapi.yaml"""
 

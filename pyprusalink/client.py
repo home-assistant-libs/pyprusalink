@@ -58,12 +58,11 @@ class ApiClient:
 
     @asynccontextmanager
     async def request(
-            self, method: str, path: str, json_data: dict | None = None, 
+            self, method: str, path: str, json_data: dict | None = None,
             try_auth: bool = True
     ) -> AsyncGenerator[ClientResponse, None]:
         """Make a request to the PrusaLink API."""
         url = f"{self.host}{path}"
-        
         headers = self._generate_headers(method=method, path=path)
         async with self._session.request(
             method, url, json=json_data, headers=headers

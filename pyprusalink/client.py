@@ -6,24 +6,42 @@ from contextlib import asynccontextmanager
 import hashlib
 
 from aiohttp import ClientResponse, ClientSession
-from pyprusalink.types import Conflict, InvalidAuth
+from pyprusalink.error import Conflict, InvalidAuth
 
 
 class ApiClient:
     def __init__(
-        self, session: ClientSession, host: str, username: str, password: str
+        self,
+        session: ClientSession,
+        host: str,
+        username: str | None = None,
+        password: str | None = None,
+        api_key: str | None = None,
     ) -> None:
         self._session = session
         self.host = host
         self._username = username
         self._password = password
+        self._api_key = api_key
         self._lock = asyncio.Lock()
 
         self._realm = ""
         self._nonce = ""
         self._qop = ""
 
-    def _generate_headers(self, method: str, path: str) -> dict:
+    @classmethod
+    def get_http_digest_client(
+        cls, session: ClientSession, host: str, username: str, password: str
+    ) -> ApiClient:
+        return cls(session, host, username, password)
+
+    @classmethod
+    def get_api_key_client(
+        cls, session: ClientSession, host: str, api_key: str
+    ) -> ApiClient:
+        return cls(session, host, api_key=api_key)
+
+    def _generate_digest_headers(self, method: str, path: str) -> dict:
         """Generates new Authorization with the current _nonce, method and path."""
         ha1 = hashlib.md5(
             f"{self._username}:{self._realm}:{self._password}".encode()
@@ -37,6 +55,12 @@ class ApiClient:
         }
 
         return headers
+
+    def _generate_headers(self, method: str, path: str) -> dict:
+        if self._username or self._password:
+            return self._generate_digest_headers(method, path)
+        else:
+            return {"X-Api-Key": self._api_key}
 
     def _extract_digest_params(self, headers: dict[str]) -> None:
         """Extract realm, nonce key from Digest Auth header"""

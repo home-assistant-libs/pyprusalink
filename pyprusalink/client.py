@@ -58,34 +58,27 @@ class ApiClient:
 
     @asynccontextmanager
     async def request(
-        self, method: str, path: str, json_data: dict | None = None
+            self, method: str, path: str, json_data: dict | None = None, 
+            try_auth: bool = True
     ) -> AsyncGenerator[ClientResponse, None]:
         """Make a request to the PrusaLink API."""
-        async with self._lock:
-            url = f"{self.host}{path}"
-            headers = self._generate_headers(method=method, path=path)
-            async with self._session.request(
-                method, url, json=json_data, headers=headers
-            ) as response:
-                if response.status == 401:
+        url = f"{self.host}{path}"
+        
+        headers = self._generate_headers(method=method, path=path)
+        async with self._session.request(
+            method, url, json=json_data, headers=headers
+        ) as response:
+            if response.status == 401:
+                if try_auth:
                     self._extract_digest_params(response.headers)
-                    headers = self._generate_headers(method=method, path=path)
-
-                    async with self._session.request(
-                        method, url, json=json_data, headers=headers
-                    ) as refreshed_response:
-                        if refreshed_response.status == 401:
-                            raise InvalidAuth()
-                        if refreshed_response.status == 409:
-                            raise Conflict()
-
-                        refreshed_response.raise_for_status()
-
-                        yield refreshed_response
+                    async with self.request(method, path, json_data, False) as response:
+                        yield response
                         return
+                else:
+                    raise InvalidAuth()
 
-                if response.status == 409:
-                    raise Conflict()
+            if response.status == 409:
+                raise Conflict()
 
-                response.raise_for_status()
-                yield response
+            response.raise_for_status()
+            yield response

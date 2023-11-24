@@ -24,6 +24,7 @@ class ApiClient:
         self._qop = ""
 
     def _generate_headers(self, method: str, path: str) -> dict:
+        """Generates new Authorization with the current _nonce, method and path."""
         ha1 = hashlib.md5(
             f"{self._username}:{self._realm}:{self._password}".encode()
         ).hexdigest()
@@ -38,6 +39,7 @@ class ApiClient:
         return headers
 
     def _extract_digest_params(self, headers: dict[str]) -> None:
+        """Extract realm, nonce key from Digest Auth header"""
         header_value = headers.get("WWW-Authenticate", "")
         if not header_value.startswith("Digest"):
             return

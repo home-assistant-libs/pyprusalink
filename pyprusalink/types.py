@@ -16,6 +16,10 @@ class Conflict(PrusaLinkError):
     """Error to indicate the command hit a conflict."""
 
 
+class NotFound(PrusaLinkError):
+    """Error to indicate the requested resource was not found. (404)"""
+
+
 class Capabilities(TypedDict):
     """API Capabilities"""
 

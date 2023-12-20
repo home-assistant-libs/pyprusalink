@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 import hashlib
 
 from aiohttp import ClientResponse, ClientSession
-from pyprusalink.types import Conflict, InvalidAuth
+from pyprusalink.types import Conflict, InvalidAuth, NotFound
 
 
 class ApiClient:
@@ -81,6 +81,9 @@ class ApiClient:
 
             if response.status == 409:
                 raise Conflict()
+
+            if response.status == 404:
+                raise NotFound()
 
             response.raise_for_status()
             yield response

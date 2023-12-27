@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 import hashlib
@@ -17,7 +16,6 @@ class ApiClient:
         self.host = host
         self._username = username
         self._password = password
-        self._lock = asyncio.Lock()
 
         self._realm = ""
         self._nonce = ""

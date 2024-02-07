@@ -61,7 +61,7 @@ class PrusaLink:
         """Get current job."""
         async with self.client.request("GET", "/api/v1/job") as response:
             # when there is no job running we'll an empty document that will fail to parse
-            if response.status == 204:
+            if response.status_code == 204:
                 return {}
             return response.json()
 

@@ -1,7 +1,7 @@
 """Prusalink API."""
 from __future__ import annotations
 
-from aiohttp import ClientSession
+from httpx import AsyncClient
 from pyprusalink.client import ApiClient
 from pyprusalink.types import JobInfo, PrinterInfo, PrinterStatus, VersionInfo
 from pyprusalink.types_legacy import LegacyPrinterStatus
@@ -15,11 +15,11 @@ class PrusaLink:
     """
 
     def __init__(
-        self, session: ClientSession, host: str, username: str, password: str
+        self, async_client: AsyncClient, host: str, username: str, password: str
     ) -> None:
         """Initialize the PrusaLink class."""
         self.client = ApiClient(
-            session=session, host=host, username=username, password=password
+            async_client=async_client, host=host, username=username, password=password
         )
 
     async def cancel_job(self, jobId: int) -> None:
@@ -40,33 +40,33 @@ class PrusaLink:
     async def get_version(self) -> VersionInfo:
         """Get the version."""
         async with self.client.request("GET", "/api/version") as response:
-            return await response.json()
+            return response.json()
 
     async def get_legacy_printer(self) -> LegacyPrinterStatus:
         """Get the legacy printer endpoint."""
         async with self.client.request("GET", "/api/printer") as response:
-            return await response.json()
+            return response.json()
 
     async def get_info(self) -> PrinterInfo:
         """Get the printer."""
         async with self.client.request("GET", "/api/v1/info") as response:
-            return await response.json()
+            return response.json()
 
     async def get_status(self) -> PrinterStatus:
         """Get the printer."""
         async with self.client.request("GET", "/api/v1/status") as response:
-            return await response.json()
+            return response.json()
 
     async def get_job(self) -> JobInfo:
         """Get current job."""
         async with self.client.request("GET", "/api/v1/job") as response:
             # when there is no job running we'll an empty document that will fail to parse
-            if response.status == 204:
+            if response.status_code == 204:
                 return {}
-            return await response.json()
+            return response.json()
 
     # Prusa Link Web UI still uses the old endpoints and it seems that the new v1 endpoint doesn't support this yet
     async def get_file(self, path: str) -> bytes:
         """Get a files such as Thumbnails or Icons. Path comes from the current job['file']['refs']['thumbnail']"""
         async with self.client.request("GET", path) as response:
-            return await response.read()
+            return await response.aread()

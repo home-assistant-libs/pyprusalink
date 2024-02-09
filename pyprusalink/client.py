@@ -4,14 +4,17 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 import hashlib
 
-from httpx import AsyncClient, DigestAuth, Response, Request
+from httpx import AsyncClient, DigestAuth, Request, Response
 from httpx._auth import _DigestAuthChallenge
 from pyprusalink.types import Conflict, InvalidAuth, NotFound
+
 
 # TODO remove after the following issues are fixed (in all supported firmwares for the latter one):
 # https://github.com/encode/httpx/pull/3045
 # https://github.com/prusa3d/Prusa-Firmware-Buddy/pull/3665
 class DigestAuthWorkaround(DigestAuth):
+    """Wrapper for httpx.DigestAuth to work around a firmware issue."""
+
     # Taken from httpx.DigestAuth and modified
     # https://github.com/encode/httpx/blob/c6907c22034e2739c4c1af89908e3c9f90602788/httpx/_auth.py#L258
     def _build_auth_header(
@@ -42,6 +45,7 @@ class DigestAuthWorkaround(DigestAuth):
         }
 
         return "Digest " + self._get_header_value(format_args)
+
 
 class ApiClient:
     def __init__(

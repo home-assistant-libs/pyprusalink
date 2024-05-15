@@ -4,7 +4,7 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 import hashlib
 
-from httpx import AsyncClient, DigestAuth, Request, Response
+from httpx import AsyncClient, DigestAuth, Request, Response, ConnectError
 from httpx._auth import _DigestAuthChallenge
 from pyprusalink.types import Conflict, InvalidAuth, NotFound
 
@@ -66,9 +66,12 @@ class ApiClient:
         """Make a request to the PrusaLink API."""
         url = f"{self.host}{path}"
 
-        response = await self._async_client.request(
-            method, url, json=json_data, auth=self._auth
-        )
+        try:
+            response = await self._async_client.request(
+                method, url, json=json_data, auth=self._auth
+            )
+        except ConnectError:
+            raise NotFound()
 
         if response.status_code == 401:
             raise InvalidAuth()

@@ -38,6 +38,11 @@ class PrusaLink:
         async with self.client.request("PUT", f"/api/v1/job/{jobId}/resume"):
             pass
 
+    async def continue_job(self, jobId: int) -> None:
+        """Continue a job after a timelapse capture."""
+        async with self.client.request("PUT", f"/api/v1/job/{jobId}/continue"):
+            pass
+
     async def get_version(self) -> VersionInfo:
         """Get the version."""
         async with self.client.request("GET", "/api/version") as response:

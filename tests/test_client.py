@@ -1,10 +1,7 @@
-"""Tests for ApiClient error handling and DigestAuthWorkaround."""
-
-from unittest.mock import MagicMock, patch
+"""Tests for ApiClient error handling."""
 
 import httpx
-from httpx import DigestAuth
-from pyprusalink.client import DigestAuthWorkaround
+from pyprusalink.client import ApiClient
 from pyprusalink.types import Conflict, InvalidAuth, NotFound
 import pytest
 
@@ -32,42 +29,8 @@ async def test_not_found_raises(pl, respx_mock):
         await pl.cancel_job(1)
 
 
-def test_digest_workaround_omits_algorithm_without_qop():
-    """When the server sends no qop, the Authorization header must not include algorithm.
-
-    Old Prusa firmware (< 5.2.0) rejects Digest headers that contain an unquoted
-    algorithm parameter. The workaround builds the header manually in that case.
-    """
-    auth = DigestAuthWorkaround(username="maker", password="password")
-
-    challenge = MagicMock()
-    challenge.qop = None
-    challenge.realm = b"Printer API"
-    challenge.nonce = b"testnonce123"
-
-    request = MagicMock()
-    request.url.raw_path = b"/api/version"
-    request.method = "GET"
-
-    header = auth._build_auth_header(request, challenge)
-
-    assert header.startswith("Digest ")
-    assert "algorithm" not in header.lower()
-
-
-def test_digest_workaround_delegates_to_parent_with_qop():
-    """When qop is present the workaround delegates to the standard httpx implementation."""
-    auth = DigestAuthWorkaround(username="maker", password="password")
-
-    challenge = MagicMock()
-    challenge.qop = b"auth"
-
-    request = MagicMock()
-
-    with patch.object(
-        DigestAuth, "_build_auth_header", return_value="Digest mocked=value"
-    ) as mock:
-        result = auth._build_auth_header(request, challenge)
-        mock.assert_called_once_with(request, challenge)
-
-    assert result == "Digest mocked=value"
+def test_uses_standard_digest_auth():
+    """ApiClient uses httpx.DigestAuth directly, without any subclassing."""
+    async_client = httpx.AsyncClient()
+    api = ApiClient(async_client, HOST, "maker", "password")
+    assert type(api._auth) is httpx.DigestAuth

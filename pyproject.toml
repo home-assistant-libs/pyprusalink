@@ -70,3 +70,5 @@ combine_as_imports = true
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+markers = ["integration: requires a real PrusaLink printer (skipped in CI)"]
+addopts = "-m 'not integration'"

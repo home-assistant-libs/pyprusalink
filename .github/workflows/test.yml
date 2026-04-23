@@ -31,8 +31,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e . -r requirements-test.txt
       - name: Flake8
-        run: flake8 pyprusalink
+        run: flake8 pyprusalink tests
       - name: Black
-        run: black --check pyprusalink
+        run: black --check pyprusalink tests
       - name: isort
-        run: isort --check pyprusalink
+        run: isort --check pyprusalink tests
+      - name: Pytest
+        run: pytest tests/ --tb=short

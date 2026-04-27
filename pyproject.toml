@@ -15,8 +15,8 @@ classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Developers",
   "Environment :: Console",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
   "Topic :: Home Automation",
 ]
 dependencies = [
@@ -67,3 +67,6 @@ forced_separate = [
     "tests",
 ]
 combine_as_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"

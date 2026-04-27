@@ -141,6 +141,32 @@ async def test_resume_job(pl, respx_mock):
     await pl.resume_job(42)
 
 
+async def test_get_storage(pl, respx_mock):
+    respx_mock.get(f"{HOST}/api/v1/storage").mock(
+        return_value=httpx.Response(
+            200,
+            json={
+                "storage_list": [
+                    {
+                        "name": "usb",
+                        "type": "USB",
+                        "path": "/usb/",
+                        "read_only": False,
+                        "available": True,
+                        "free_space": 14123456789,
+                        "total_space": 16000000000,
+                    }
+                ]
+            },
+        )
+    )
+    result = await pl.get_storage()
+    assert len(result) == 1
+    assert result[0]["name"] == "usb"
+    assert result[0]["type"] == "USB"
+    assert result[0]["available"] is True
+
+
 async def test_get_file(pl, respx_mock):
     thumbnail_bytes = b"\x89PNG\r\nfake-image-data"
     respx_mock.get(f"{HOST}/api/thumbnails/test.png").mock(

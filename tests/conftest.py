@@ -8,7 +8,7 @@ HOST = "http://printer.local"
 
 
 @pytest.fixture
-def prusalink(respx_mock):
+def pl(respx_mock):
     """Return a PrusaLink instance backed by a mocked HTTP transport."""
     client = httpx.AsyncClient()
     return PrusaLink(client, HOST, "maker", "password")

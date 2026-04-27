@@ -1,15 +1,8 @@
 """Happy-path tests for PrusaLink public API methods."""
 
 import httpx
-from pyprusalink import PrusaLink
-import pytest
 
 HOST = "http://printer.local"
-
-
-@pytest.fixture
-def pl(respx_mock):
-    return PrusaLink(httpx.AsyncClient(), HOST, "maker", "password")
 
 
 async def test_get_version(pl, respx_mock):

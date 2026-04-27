@@ -4,7 +4,14 @@ from __future__ import annotations
 
 from httpx import AsyncClient
 from pyprusalink.client import ApiClient
-from pyprusalink.types import JobInfo, PrinterInfo, PrinterStatus, Storage, VersionInfo
+from pyprusalink.types import (
+    JobInfo,
+    PrinterInfo,
+    PrinterStatus,
+    Storage,
+    Transfer,
+    VersionInfo,
+)
 from pyprusalink.types_legacy import LegacyPrinterStatus
 
 
@@ -75,6 +82,18 @@ class PrusaLink:
         """Get available storage devices."""
         async with self.client.request("GET", "/api/v1/storage") as response:
             return response.json()["storage_list"]
+
+    async def get_transfer(self) -> Transfer | None:
+        """Get active transfer. Returns None when no transfer is in progress."""
+        async with self.client.request("GET", "/api/v1/transfer") as response:
+            if response.status_code == 204:
+                return None
+            return response.json()
+
+    async def cancel_transfer(self, transfer_id: int) -> None:
+        """Cancel the transfer with the given id."""
+        async with self.client.request("DELETE", f"/api/v1/transfer/{transfer_id}"):
+            pass
 
     # Prusa Link Web UI still uses the old endpoints and it seems that the new v1 endpoint doesn't support this yet
     async def get_file(self, path: str) -> bytes:

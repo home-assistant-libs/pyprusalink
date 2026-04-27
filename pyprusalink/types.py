@@ -170,3 +170,19 @@ class Storage(TypedDict):
     total_space: NotRequired[int]
     print_files: NotRequired[int]
     system_files: NotRequired[int]
+
+
+class Transfer(TypedDict):
+    """An active file transfer returned by /api/v1/transfer."""
+
+    type: str
+    display_name: str
+    path: str
+    progress: float
+    transferred: int
+    time_transferring: int
+    to_print: bool
+    id: NotRequired[int]
+    url: NotRequired[str]
+    size: NotRequired[str]
+    time_remaining: NotRequired[int]

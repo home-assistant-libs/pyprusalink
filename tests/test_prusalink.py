@@ -65,13 +65,58 @@ async def test_get_status(pl, respx_mock):
                     "speed": 100,
                     "fan_hotend": 1200,
                     "fan_print": 4500,
-                }
+                },
+                "job": {
+                    "id": 42,
+                    "progress": 55.0,
+                    "time_printing": 1200,
+                    "time_remaining": 980,
+                },
+                "storage": {
+                    "path": "/usb/",
+                    "name": "usb",
+                    "read_only": False,
+                },
             },
         )
     )
     result = await pl.get_status()
     assert result["printer"]["state"] == "PRINTING"
     assert result["printer"]["temp_nozzle"] == 214.9
+    assert result["job"]["id"] == 42
+    assert result["job"]["time_remaining"] == 980
+    assert result["storage"]["name"] == "usb"
+
+
+async def test_get_status_idle(pl, respx_mock):
+    """In IDLE state the job key is absent from the response."""
+    respx_mock.get(f"{HOST}/api/v1/status").mock(
+        return_value=httpx.Response(
+            200,
+            json={
+                "printer": {
+                    "state": "IDLE",
+                    "temp_nozzle": 27.6,
+                    "target_nozzle": 0.0,
+                    "temp_bed": 24.3,
+                    "target_bed": 0.0,
+                    "axis_z": 0.0,
+                    "flow": 100,
+                    "speed": 100,
+                    "fan_hotend": 0,
+                    "fan_print": 0,
+                },
+                "storage": {
+                    "path": "/usb/",
+                    "name": "usb",
+                    "read_only": False,
+                },
+            },
+        )
+    )
+    result = await pl.get_status()
+    assert result["printer"]["state"] == "IDLE"
+    assert "job" not in result
 
 
 async def test_get_job(pl, respx_mock):

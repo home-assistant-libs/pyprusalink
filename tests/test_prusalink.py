@@ -141,6 +141,13 @@ async def test_resume_job(pl, respx_mock):
     await pl.resume_job(42)
 
 
+async def test_continue_job(pl, respx_mock):
+    respx_mock.put(f"{HOST}/api/v1/job/42/continue").mock(
+        return_value=httpx.Response(204)
+    )
+    await pl.continue_job(42)
+
+
 async def test_get_file(pl, respx_mock):
     thumbnail_bytes = b"\x89PNG\r\nfake-image-data"
     respx_mock.get(f"{HOST}/api/thumbnails/test.png").mock(

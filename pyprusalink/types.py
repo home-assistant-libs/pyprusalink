@@ -133,3 +133,19 @@ class JobInfo(TypedDict):
     inaccurate_estimates: bool | None
     serial_print: bool | None
     file: JobFilePrint | None
+
+
+class Transfer(TypedDict, total=False):
+    """An active file transfer returned by /api/v1/transfer."""
+
+    id: int
+    type: str
+    display_name: str
+    path: str
+    url: str
+    size: int
+    progress: float
+    transferred: int
+    time_remaining: int
+    time_transferring: int
+    to_print: bool

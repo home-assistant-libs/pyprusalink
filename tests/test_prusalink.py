@@ -141,6 +141,42 @@ async def test_resume_job(pl, respx_mock):
     await pl.resume_job(42)
 
 
+async def test_get_transfer(pl, respx_mock):
+    respx_mock.get(f"{HOST}/api/v1/transfer").mock(
+        return_value=httpx.Response(
+            200,
+            json={
+                "id": 7,
+                "type": "FROM_WEB",
+                "display_name": "model.gcode",
+                "path": "/usb",
+                "size": 2393142,
+                "progress": 42.25,
+                "transferred": 1011000,
+                "time_remaining": 61,
+                "time_transferring": 42,
+                "to_print": False,
+            },
+        )
+    )
+    result = await pl.get_transfer()
+    assert result["type"] == "FROM_WEB"
+    assert result["progress"] == 42.25
+
+
+async def test_get_transfer_none(pl, respx_mock):
+    """Returns None when no transfer is active."""
+    respx_mock.get(f"{HOST}/api/v1/transfer").mock(return_value=httpx.Response(204))
+    assert await pl.get_transfer() is None
+
+
+async def test_cancel_transfer(pl, respx_mock):
+    respx_mock.delete(f"{HOST}/api/v1/transfer/7").mock(
+        return_value=httpx.Response(204)
+    )
+    await pl.cancel_transfer(7)
+
+
 async def test_get_file(pl, respx_mock):
     thumbnail_bytes = b"\x89PNG\r\nfake-image-data"
     respx_mock.get(f"{HOST}/api/thumbnails/test.png").mock(

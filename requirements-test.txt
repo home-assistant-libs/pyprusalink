@@ -3,4 +3,4 @@ flake8==7.3.0
 isort==8.0.1
 pytest>=8.0
 pytest-asyncio>=1.3.0
-respx>=0.22
+respx>=0.23.1

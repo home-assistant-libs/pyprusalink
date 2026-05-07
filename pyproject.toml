@@ -23,6 +23,13 @@ dependencies = [
   "httpx",
 ]
 
+[project.optional-dependencies]
+test = [
+  "pytest>=8.0",
+  "pytest-asyncio>=0.24",
+  "respx>=0.22",
+]
+
 [tool.setuptools]
 platforms = ["any"]
 zip-safe  = true
@@ -70,3 +77,5 @@ combine_as_imports = true
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+markers = ["integration: requires a real PrusaLink printer (skipped in CI)"]
+addopts = "-m 'not integration'"

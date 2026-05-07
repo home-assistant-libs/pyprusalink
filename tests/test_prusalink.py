@@ -45,8 +45,8 @@ async def test_get_version_legacy_firmware(pl, respx_mock):
     )
     result = await pl.get_version()
     assert result["api"] == "2.0.0"
-    assert result.get("firmware") is None
-    assert result.get("printer") is None
+    assert "firmware" not in result
+    assert "printer" not in result
 
 
 async def test_get_info(pl, respx_mock):

@@ -27,15 +27,40 @@ class Capabilities(TypedDict):
 
 
 class VersionInfo(TypedDict):
-    """Version data."""
+    """Version data from /api/version.
+
+    Field availability differs between PrusaLink variants and firmware versions:
+
+    Bundled PrusaLink (Prusa-Firmware-Buddy, all printers):
+      Always returned: api, server, nozzle_diameter, text, hostname, capabilities
+      Returned on v6.5.1+ only: firmware, printer
+        - v6.5.1 (2025-11-11): added on Core One L
+        - v6.5.3 (2026-03-24): propagated to Core One/MK4/MK3.9/MK3.5 family
+        - XL (6.4.x track) and MINI (6.4.0): not yet backported
+        - Source: https://github.com/prusa3d/Prusa-Firmware-Buddy/commit/64b7a21
+
+    Example response from MK4 firmware 6.4.0 (no firmware/printer fields):
+        {"api": "2.0.0", "server": "2.1.2", "nozzle_diameter": 0.4,
+         "text": "PrusaLink", "hostname": "prusa-mk4",
+         "capabilities": {"upload-by-put": True}}
+
+    Standalone PrusaLink (RPi-based installations):
+      May return version and sdk per the Prusa-Link-Web OpenAPI spec; these
+      are never returned by bundled firmware.
+
+    Use dict.get() for any field other than `api` to handle absence safely.
+    """
 
     api: str
-    version: str
-    printer: str
-    text: str
-    firmware: str
-    sdk: str | None
-    capabilities: Capabilities | None
+    text: NotRequired[str]
+    server: NotRequired[str]
+    hostname: NotRequired[str]
+    nozzle_diameter: NotRequired[float]
+    firmware: NotRequired[str]
+    printer: NotRequired[str]
+    version: NotRequired[str]
+    sdk: NotRequired[str]
+    capabilities: NotRequired[Capabilities]
 
 
 class PrinterInfo(TypedDict):

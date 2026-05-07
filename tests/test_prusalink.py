@@ -6,21 +6,47 @@ HOST = "http://printer.local"
 
 
 async def test_get_version(pl, respx_mock):
+    """Modern firmware (Buddy v6.5.1+) returns firmware and printer fields."""
     respx_mock.get(f"{HOST}/api/version").mock(
         return_value=httpx.Response(
             200,
             json={
                 "api": "2.0.0",
-                "version": "0.7.0",
-                "printer": "1.3.1",
-                "text": "PrusaLink 0.7.0",
-                "firmware": "3.10.1-4697",
+                "server": "2.1.2",
+                "nozzle_diameter": 0.40,
+                "text": "PrusaLink",
+                "hostname": "prusa-core-one",
+                "firmware": "6.5.3+12780",
+                "printer": "7.1.0",
+                "capabilities": {"upload-by-put": True},
             },
         )
     )
     result = await pl.get_version()
     assert result["api"] == "2.0.0"
-    assert result["firmware"] == "3.10.1-4697"
+    assert result["firmware"] == "6.5.3+12780"
+    assert result["printer"] == "7.1.0"
+
+
+async def test_get_version_legacy_firmware(pl, respx_mock):
+    """Legacy firmware (Buddy <v6.5.1, XL, MINI) omits firmware and printer fields."""
+    respx_mock.get(f"{HOST}/api/version").mock(
+        return_value=httpx.Response(
+            200,
+            json={
+                "api": "2.0.0",
+                "server": "2.1.2",
+                "nozzle_diameter": 0.40,
+                "text": "PrusaLink",
+                "hostname": "prusa-mk39",
+                "capabilities": {"upload-by-put": True},
+            },
+        )
+    )
+    result = await pl.get_version()
+    assert result["api"] == "2.0.0"
+    assert "firmware" not in result
+    assert "printer" not in result
 
 
 async def test_get_info(pl, respx_mock):

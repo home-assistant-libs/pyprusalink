@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import TypedDict
+from typing import NotRequired, TypedDict
 
 """Types of the v1 API. Source: https://github.com/prusa3d/Prusa-Link-Web/blob/master/spec/openapi.yaml"""
 
@@ -95,10 +95,33 @@ class PrinterStatusInfo(TypedDict):
     status_connect: StatusInfo | None
 
 
+class StatusJob(TypedDict, total=False):
+    """Job summary embedded in the status response.
+
+    All fields are optional per the OpenAPI spec.
+    """
+
+    id: int
+    progress: float
+    time_printing: int
+    time_remaining: int
+
+
+class StatusStorage(TypedDict):
+    """Active storage device embedded in the status response."""
+
+    path: str
+    name: str
+    read_only: bool
+    free_space: NotRequired[int]
+
+
 class PrinterStatus(TypedDict):
     """Printer status."""
 
     printer: PrinterStatusInfo
+    job: NotRequired[StatusJob]
+    storage: NotRequired[StatusStorage]
 
 
 class PrintFileRefs(TypedDict):

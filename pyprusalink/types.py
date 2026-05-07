@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import TypedDict
+from typing import NotRequired, TypedDict
 
 """Types of the v1 API. Source: https://github.com/prusa3d/Prusa-Link-Web/blob/master/spec/openapi.yaml"""
 
@@ -39,6 +39,11 @@ class VersionInfo(TypedDict):
         - XL (6.4.x track) and MINI (6.4.0): not yet backported
         - Source: https://github.com/prusa3d/Prusa-Firmware-Buddy/commit/64b7a21
 
+    Example response from MK4 firmware 6.4.0 (no firmware/printer fields):
+        {"api": "2.0.0", "server": "2.1.2", "nozzle_diameter": 0.4,
+         "text": "PrusaLink", "hostname": "prusa-mk4",
+         "capabilities": {"upload-by-put": True}}
+
     Standalone PrusaLink (RPi-based installations):
       May return version and sdk per the Prusa-Link-Web OpenAPI spec; these
       are never returned by bundled firmware.
@@ -47,15 +52,15 @@ class VersionInfo(TypedDict):
     """
 
     api: str
-    text: str | None
-    server: str | None
-    hostname: str | None
-    nozzle_diameter: float | None
-    firmware: str | None
-    printer: str | None
-    version: str | None
-    sdk: str | None
-    capabilities: Capabilities | None
+    text: NotRequired[str]
+    server: NotRequired[str]
+    hostname: NotRequired[str]
+    nozzle_diameter: NotRequired[float]
+    firmware: NotRequired[str]
+    printer: NotRequired[str]
+    version: NotRequired[str]
+    sdk: NotRequired[str]
+    capabilities: NotRequired[Capabilities]
 
 
 class PrinterInfo(TypedDict):

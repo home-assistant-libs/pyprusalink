@@ -156,3 +156,17 @@ class JobInfo(TypedDict):
     inaccurate_estimates: bool | None
     serial_print: bool | None
     file: JobFilePrint | None
+
+
+class Storage(TypedDict):
+    """A storage device returned by /api/v1/storage."""
+
+    type: str
+    path: str
+    available: bool
+    name: NotRequired[str]
+    read_only: NotRequired[bool]
+    free_space: NotRequired[int]
+    total_space: NotRequired[int]
+    print_files: NotRequired[int]
+    system_files: NotRequired[int]

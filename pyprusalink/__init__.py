@@ -72,12 +72,11 @@ class PrusaLink:
         async with self.client.request("GET", "/api/v1/status") as response:
             return cast(PrinterStatus, response.json())
 
-    async def get_job(self) -> JobInfo:
-        """Get current job."""
+    async def get_job(self) -> JobInfo | None:
+        """Get current job. Returns None when no job is running."""
         async with self.client.request("GET", "/api/v1/job") as response:
-            # when there is no job running we'll an empty document that will fail to parse
             if response.status_code == 204:
-                return cast(JobInfo, {})
+                return None
             return cast(JobInfo, response.json())
 
     async def get_storage(self) -> list[Storage]:

@@ -38,11 +38,14 @@ lint = [
 
 [tool.setuptools]
 platforms = ["any"]
-zip-safe  = true
+zip-safe  = false
 include-package-data = true
 
 [tool.setuptools.packages.find]
 include = ["pyprusalink*"]
+
+[tool.setuptools.package-data]
+pyprusalink = ["py.typed"]
 
 
 [tool.pylint.BASIC]

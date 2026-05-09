@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 from httpx import AsyncClient
 from pyprusalink.client import ApiClient
 from pyprusalink.types import (
@@ -53,42 +55,42 @@ class PrusaLink:
     async def get_version(self) -> VersionInfo:
         """Get the version."""
         async with self.client.request("GET", "/api/version") as response:
-            return response.json()
+            return cast(VersionInfo, response.json())
 
     async def get_legacy_printer(self) -> LegacyPrinterStatus:
         """Get the legacy printer endpoint."""
         async with self.client.request("GET", "/api/printer") as response:
-            return response.json()
+            return cast(LegacyPrinterStatus, response.json())
 
     async def get_info(self) -> PrinterInfo:
         """Get the printer."""
         async with self.client.request("GET", "/api/v1/info") as response:
-            return response.json()
+            return cast(PrinterInfo, response.json())
 
     async def get_status(self) -> PrinterStatus:
         """Get the printer."""
         async with self.client.request("GET", "/api/v1/status") as response:
-            return response.json()
+            return cast(PrinterStatus, response.json())
 
     async def get_job(self) -> JobInfo:
         """Get current job."""
         async with self.client.request("GET", "/api/v1/job") as response:
             # when there is no job running we'll an empty document that will fail to parse
             if response.status_code == 204:
-                return {}
-            return response.json()
+                return cast(JobInfo, {})
+            return cast(JobInfo, response.json())
 
     async def get_storage(self) -> list[Storage]:
         """Get available storage devices."""
         async with self.client.request("GET", "/api/v1/storage") as response:
-            return response.json()["storage_list"]
+            return cast(list[Storage], response.json()["storage_list"])
 
     async def get_transfer(self) -> Transfer | None:
         """Get active transfer. Returns None when no transfer is in progress."""
         async with self.client.request("GET", "/api/v1/transfer") as response:
             if response.status_code == 204:
                 return None
-            return response.json()
+            return cast(Transfer, response.json())
 
     async def cancel_transfer(self, transfer_id: int) -> None:
         """Cancel the transfer with the given id."""

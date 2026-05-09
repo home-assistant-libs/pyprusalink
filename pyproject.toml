@@ -33,6 +33,7 @@ lint = [
   "black==26.3.1",
   "flake8==7.3.0",
   "isort==8.0.1",
+  "mypy==2.0.0",
 ]
 
 [tool.setuptools]
@@ -84,3 +85,8 @@ combine_as_imports = true
 asyncio_mode = "auto"
 markers = ["integration: requires a real PrusaLink printer (skipped in CI)"]
 addopts = "-m 'not integration'"
+
+[tool.mypy]
+python_version = "3.11"
+packages = ["pyprusalink"]
+strict = true

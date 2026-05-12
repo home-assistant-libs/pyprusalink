@@ -32,24 +32,24 @@ class PrusaLink:
             async_client=async_client, host=host, username=username, password=password
         )
 
-    async def cancel_job(self, jobId: int) -> None:
+    async def cancel_job(self, job_id: int) -> None:
         """Cancel the current job."""
-        async with self.client.request("DELETE", f"/api/v1/job/{jobId}"):
+        async with self.client.request("DELETE", f"/api/v1/job/{job_id}"):
             pass
 
-    async def pause_job(self, jobId: int) -> None:
+    async def pause_job(self, job_id: int) -> None:
         """Pause a job."""
-        async with self.client.request("PUT", f"/api/v1/job/{jobId}/pause"):
+        async with self.client.request("PUT", f"/api/v1/job/{job_id}/pause"):
             pass
 
-    async def resume_job(self, jobId: int) -> None:
+    async def resume_job(self, job_id: int) -> None:
         """Resume a paused job."""
-        async with self.client.request("PUT", f"/api/v1/job/{jobId}/resume"):
+        async with self.client.request("PUT", f"/api/v1/job/{job_id}/resume"):
             pass
 
-    async def continue_job(self, jobId: int) -> None:
+    async def continue_job(self, job_id: int) -> None:
         """Continue a job after a timelapse capture."""
-        async with self.client.request("PUT", f"/api/v1/job/{jobId}/continue"):
+        async with self.client.request("PUT", f"/api/v1/job/{job_id}/continue"):
             pass
 
     async def get_version(self) -> VersionInfo:

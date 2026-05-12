@@ -4,9 +4,9 @@
 [![Python](https://img.shields.io/pypi/pyversions/pyprusalink.svg)](https://pypi.org/project/pyprusalink/)
 [![License](https://img.shields.io/pypi/l/pyprusalink.svg)](https://github.com/home-assistant-libs/pyprusalink/blob/main/LICENSE)
 
-Async Python wrapper for the [PrusaLink v2 API](https://github.com/prusa3d/Prusa-Link-Web/blob/master/spec/openapi.yaml).
+Async Python client for the [PrusaLink HTTP API](https://github.com/prusa3d/Prusa-Link-Web/blob/master/spec/openapi.yaml). Covers both the current `/api/v1/...` endpoints and a few legacy paths (`/api/version`, `/api/printer`).
 
-The primary consumer is the [Home Assistant `prusalink` integration](https://www.home-assistant.io/integrations/prusalink/). The library is intentionally a thin wrapper around the HTTP API — it does not perform runtime validation, retry, or caching. Consumers handle those concerns.
+The primary consumer is the [Home Assistant `prusalink` integration](https://www.home-assistant.io/integrations/prusalink/), and API shape decisions are weighted toward serving that integration. Today the library does not perform runtime validation, retry, or caching at the boundary — consumers handle those — but the shape may evolve as the integration's needs do.
 
 ## Requirements
 

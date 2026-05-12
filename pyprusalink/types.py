@@ -64,20 +64,29 @@ class VersionInfo(TypedDict):
 
 
 class PrinterInfo(TypedDict):
-    """Printer informations."""
+    """Printer information from /api/v1/info.
 
-    mmu: bool | None
-    name: str | None
-    location: str | None
-    farm_mode: bool | None
-    nozzle_diameter: float | None
-    min_extrusion_temp: int | None
-    serial: str | None
-    sd_ready: bool | None
-    active_camera: bool | None
-    hostname: str | None
-    port: str | None
-    network_error_chime: bool | None
+    The set of fields returned varies by firmware version and printer
+    model — older firmware may omit fields like `min_extrusion_temp` or
+    `network_error_chime`, and a Buddy printer not in farm mode may omit
+    `farm_mode`. Treat any missing key as "not reported", not
+    "false/zero/empty".
+
+    Use `dict.get()` or `key in info` rather than indexing.
+    """
+
+    mmu: NotRequired[bool]
+    name: NotRequired[str]
+    location: NotRequired[str]
+    farm_mode: NotRequired[bool]
+    nozzle_diameter: NotRequired[float]
+    min_extrusion_temp: NotRequired[int]
+    serial: NotRequired[str]
+    sd_ready: NotRequired[bool]
+    active_camera: NotRequired[bool]
+    hostname: NotRequired[str]
+    port: NotRequired[str]
+    network_error_chime: NotRequired[bool]
 
 
 class StatusInfo(TypedDict):

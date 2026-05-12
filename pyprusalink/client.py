@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 import hashlib
+from typing import Any
 
 from httpx import AsyncClient, DigestAuth, Request, Response
 from httpx._auth import _DigestAuthChallenge
@@ -60,7 +61,7 @@ class ApiClient:
         self,
         method: str,
         path: str,
-        json_data: dict | None = None,
+        json_data: dict[str, Any] | None = None,
         try_auth: bool = True,
     ) -> AsyncGenerator[Response, None]:
         """Make a request to the PrusaLink API."""

@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import NotRequired, TypedDict
+from typing import Any, NotRequired, TypedDict
 
 """Types of the v1 API. Source: https://github.com/prusa3d/Prusa-Link-Web/blob/master/spec/openapi.yaml"""
 
@@ -166,7 +166,7 @@ class JobFilePrint(TypedDict):
     display_path: str | None
     size: int | None
     m_timestamp: int
-    meta: dict | None
+    meta: dict[str, Any] | None
     refs: PrintFileRefs | None
 
 

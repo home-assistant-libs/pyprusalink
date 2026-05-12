@@ -180,10 +180,10 @@ async def test_get_job(pl, respx_mock):
 
 
 async def test_get_job_no_active_job(pl, respx_mock):
-    """When no job is running the API returns 204 and we return an empty dict."""
+    """When no job is running the API returns 204 and we return None."""
     respx_mock.get(f"{HOST}/api/v1/job").mock(return_value=httpx.Response(204))
     result = await pl.get_job()
-    assert result == {}
+    assert result is None
 
 
 async def test_get_legacy_printer(pl, respx_mock):

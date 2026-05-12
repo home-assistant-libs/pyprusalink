@@ -50,9 +50,9 @@ async def test_get_status(printer):
 
 async def test_get_job(printer):
     result = await printer.get_job()
-    # Returns empty dict when no job is running — both states are valid
-    assert isinstance(result, dict)
-    if result:
+    # Returns None when no job is running — both states are valid
+    assert result is None or isinstance(result, dict)
+    if result is not None:
         assert "id" in result
         assert "state" in result
 

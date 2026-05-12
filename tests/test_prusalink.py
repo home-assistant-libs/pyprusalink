@@ -75,6 +75,25 @@ async def test_get_info(pl, respx_mock):
     assert result["nozzle_diameter"] == 0.4
 
 
+async def test_get_info_minimal_firmware(pl, respx_mock):
+    """Older firmware may omit several PrinterInfo fields."""
+    respx_mock.get(f"{HOST}/api/v1/info").mock(
+        return_value=httpx.Response(
+            200,
+            json={
+                "serial": "CZPX4720X004XC34242",
+                "nozzle_diameter": 0.4,
+                "hostname": "prusa-mk3",
+            },
+        )
+    )
+    result = await pl.get_info()
+    assert result["serial"] == "CZPX4720X004XC34242"
+    assert "min_extrusion_temp" not in result
+    assert "network_error_chime" not in result
+    assert "farm_mode" not in result
+
+
 async def test_get_status(pl, respx_mock):
     respx_mock.get(f"{HOST}/api/v1/status").mock(
         return_value=httpx.Response(

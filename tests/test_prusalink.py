@@ -1,6 +1,8 @@
 """Happy-path tests for PrusaLink public API methods."""
 
 import httpx
+from pyprusalink.types import FileTooLarge
+import pytest
 
 HOST = "http://printer.local"
 
@@ -184,8 +186,6 @@ async def test_get_job(pl, respx_mock):
                     "size": 2393142,
                     "m_timestamp": 1648042843,
                     "refs": {
-                        "download": None,
-                        "icon": None,
                         "thumbnail": "/api/thumbnails/local/test.gcode.orig.png",
                     },
                 },
@@ -309,3 +309,36 @@ async def test_get_file(pl, respx_mock):
     )
     result = await pl.get_file("/api/thumbnails/test.png")
     assert result == thumbnail_bytes
+
+
+async def test_get_file_metadata(pl, respx_mock):
+    print_file = b"""
+; filament_type=PLA
+; filament used [g]=24.41
+; filament used [mm]=8184.17
+; estimated printing time (normal mode)=1h 3m 31s
+"""
+    respx_mock.get(f"{HOST}/usb/test.bgcode").mock(
+        return_value=httpx.Response(200, content=print_file)
+    )
+
+    result = await pl.get_file_metadata("/usb/test.bgcode")
+
+    assert result == {
+        "filament_type": "PLA",
+        "filament_used_g": 24.41,
+        "filament_used_mm": 8184.17,
+        "estimated_printing_time_normal": 3811,
+    }
+
+
+async def test_get_file_metadata_rejects_large_files(pl, respx_mock):
+    print_file = b"; filament_type=PLA\n"
+    respx_mock.get(f"{HOST}/usb/large.bgcode").mock(
+        return_value=httpx.Response(
+            200, content=print_file, headers={"content-length": "18"}
+        )
+    )
+
+    with pytest.raises(FileTooLarge):
+        await pl.get_file_metadata("/usb/large.bgcode", max_bytes=17)

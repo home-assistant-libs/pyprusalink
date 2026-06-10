@@ -42,7 +42,15 @@ async def main() -> None:
 
         job = await api.get_job()
         if job is not None:
-            print(f"{job['progress']:.0f}% — {job['file']['display_name']}")
+            job_file = job["file"]
+            display_name = job_file.get("display_name", job_file["name"])
+            print(f"{job['progress']:.0f}% — {display_name}")
+
+            if (refs := job_file.get("refs")) and (
+                download_path := refs.get("download")
+            ):
+                metadata = await api.get_file_metadata(download_path)
+                print(metadata.get("filament_type"), metadata.get("filament_used_g"))
 
 
 asyncio.run(main())
@@ -67,6 +75,7 @@ The username on bundled-firmware printers is `maker`. The password is the API ke
 | `continue_job(job_id)` | `None` | Continue after the printer enters the `ATTENTION` state (e.g. timelapse capture) |
 | `get_legacy_printer()` | `LegacyPrinterStatus` | `/api/printer` — legacy endpoint, used for `material` |
 | `get_file(path)` | `bytes` | Fetch raw resources such as thumbnails referenced from `JobFilePrint.refs` |
+| `get_file_metadata(path, max_bytes=16777216)` | `PrintFileMetadata` | Stream a print file up to `max_bytes` and parse known slicer metadata such as filament usage, material, cost, and estimated print time |
 
 ### Errors
 
@@ -77,6 +86,7 @@ All HTTP errors map to subclasses of `PrusaLinkError`:
 | `InvalidAuth` | 401 — wrong credentials |
 | `NotFound` | 404 — resource missing |
 | `Conflict` | 409 — action conflicts with current printer state (e.g. cancel while idle) |
+| `FileTooLarge` | Print file metadata download exceeds the configured `max_bytes` limit |
 
 ```python
 from pyprusalink.types import Conflict

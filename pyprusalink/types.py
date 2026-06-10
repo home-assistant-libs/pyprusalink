@@ -20,6 +20,10 @@ class NotFound(PrusaLinkError):
     """Error to indicate the requested resource was not found. (404)"""
 
 
+class FileTooLarge(PrusaLinkError):
+    """Error to indicate the requested file is too large to process."""
+
+
 class Capabilities(TypedDict):
     """API Capabilities"""
 
@@ -161,22 +165,34 @@ class PrinterStatus(TypedDict):
 class PrintFileRefs(TypedDict):
     """Additional Files for the current Job"""
 
-    download: str | None
-    icon: str | None
-    thumbnail: str | None
+    download: NotRequired[str]
+    icon: NotRequired[str]
+    thumbnail: NotRequired[str]
+
+
+class PrintFileMetadata(TypedDict, total=False):
+    """Known metadata parsed from a Prusa print file."""
+
+    filament_used_g: float
+    filament_used_mm: float
+    filament_used_cm3: float
+    filament_cost: float
+    filament_type: str
+    estimated_printing_time_normal: int
+    estimated_printing_time_silent: int
 
 
 class JobFilePrint(TypedDict):
     """Currently printed file informations."""
 
     name: str
-    display_name: str | None
     path: str
-    display_path: str | None
-    size: int | None
     m_timestamp: int
-    meta: dict[str, Any] | None
-    refs: PrintFileRefs | None
+    display_name: NotRequired[str]
+    display_path: NotRequired[str]
+    size: NotRequired[int]
+    meta: NotRequired[dict[str, Any]]
+    refs: NotRequired[PrintFileRefs]
 
 
 class JobInfo(TypedDict):

@@ -56,6 +56,19 @@ class ApiClient:
         self.host = host
         self._auth = DigestAuthWorkaround(username=username, password=password)
 
+    def _raise_for_response_status(self, response: Response) -> None:
+        """Raise library exceptions for known PrusaLink response statuses."""
+        if response.status_code == 401:
+            raise InvalidAuth()
+
+        if response.status_code == 409:
+            raise Conflict()
+
+        if response.status_code == 404:
+            raise NotFound()
+
+        response.raise_for_status()
+
     @asynccontextmanager
     async def request(
         self,
@@ -71,14 +84,21 @@ class ApiClient:
             method, url, json=json_data, auth=self._auth
         )
 
-        if response.status_code == 401:
-            raise InvalidAuth()
-
-        if response.status_code == 409:
-            raise Conflict()
-
-        if response.status_code == 404:
-            raise NotFound()
-
-        response.raise_for_status()
+        self._raise_for_response_status(response)
         yield response
+
+    @asynccontextmanager
+    async def stream_request(
+        self,
+        method: str,
+        path: str,
+        json_data: dict[str, Any] | None = None,
+    ) -> AsyncGenerator[Response, None]:
+        """Make a streaming request to the PrusaLink API."""
+        url = f"{self.host}{path}"
+
+        async with self._async_client.stream(
+            method, url, json=json_data, auth=self._auth
+        ) as response:
+            self._raise_for_response_status(response)
+            yield response

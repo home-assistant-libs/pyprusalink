@@ -6,15 +6,20 @@ from typing import cast
 
 from httpx import AsyncClient
 from pyprusalink.client import ApiClient
+from pyprusalink.file_metadata import parse_file_metadata
 from pyprusalink.types import (
+    FileTooLarge,
     JobInfo,
     PrinterInfo,
     PrinterStatus,
+    PrintFileMetadata,
     Storage,
     Transfer,
     VersionInfo,
 )
 from pyprusalink.types_legacy import LegacyPrinterStatus
+
+MAX_FILE_METADATA_BYTES = 16 * 1024 * 1024
 
 
 class PrusaLink:
@@ -101,3 +106,30 @@ class PrusaLink:
         """Get a files such as Thumbnails or Icons. Path comes from the current job['file']['refs']['thumbnail']"""
         async with self.client.request("GET", path) as response:
             return await response.aread()
+
+    async def get_file_metadata(
+        self, path: str, max_bytes: int = MAX_FILE_METADATA_BYTES
+    ) -> PrintFileMetadata:
+        """Get known metadata from a print file."""
+        downloaded = bytearray()
+
+        async with self.client.stream_request("GET", path) as response:
+            if content_length := response.headers.get("content-length"):
+                try:
+                    expected_size = int(content_length)
+                except ValueError:
+                    expected_size = None
+
+                if expected_size is not None and expected_size > max_bytes:
+                    raise FileTooLarge(
+                        f"File {path} is {expected_size} bytes, "
+                        f"maximum is {max_bytes} bytes"
+                    )
+
+            async for chunk in response.aiter_bytes():
+                if len(downloaded) + len(chunk) > max_bytes:
+                    raise FileTooLarge(f"File {path} is larger than {max_bytes} bytes")
+
+                downloaded.extend(chunk)
+
+        return parse_file_metadata(bytes(downloaded))
